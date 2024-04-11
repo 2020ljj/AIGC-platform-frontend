@@ -4,6 +4,8 @@ import router from './router'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import '@/assets/global.css'
+import "@/assets/css/front.css"; 
+import "@/assets/css/iconfont/iconfont.css"; 
 import request from '@/utils/request.js'
 import { setCookie, getCookie, checkCookie, clearCookie } from '@/utils/cookie';
 

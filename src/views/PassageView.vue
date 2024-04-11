@@ -29,7 +29,7 @@
           <el-table-column label="操作">
             <template slot-scope="scope">
                 <el-button type="primary" @click="editPassage(scope.row)">编辑</el-button>
-                <el-popconfirm title="这确定删除吗？" @confirm = "deletePassage(scope.row.toolId)">
+                <el-popconfirm title="这确定删除吗？" @confirm = "deletePassage(scope.row.passageId)">
                 <el-button slot="reference" type = "danger" style="margin-left: 10px">删除</el-button>
                 </el-popconfirm>            
             </template>
@@ -64,6 +64,15 @@
                       <el-option label="AI教程" value="AI教程"></el-option>
                     </el-select>
                   </el-form-item>
+                  <el-form-item label="是否引用" label-width="15%">
+                      <el-radio-group v-model="form.isCited">
+                        <el-radio :label=1>是</el-radio>
+                        <el-radio :label=0>否</el-radio>
+                      </el-radio-group>
+                  </el-form-item>
+                  <el-form-item label="参考文献" label-width="15%">
+                      <el-input type="textarea" v-model="form.referenceSource"></el-input>
+                  </el-form-item>
                 </el-form>
                 <div slot="footer" class="dialog-footer">
                   <el-button @click="dialogFormVisible1 = false">取 消</el-button>
@@ -85,6 +94,9 @@
                       <el-option label="AI资讯" value="AI资讯"></el-option>
                       <el-option label="AI教程" value="AI教程"></el-option>
                     </el-select>
+                  </el-form-item>
+                  <el-form-item label="参考文献" label-width="15%">
+                      <el-input type="textarea" v-model="form.referenceSource"></el-input>
                   </el-form-item>
                 </el-form>
                 <div slot="footer" class="dialog-footer">
@@ -146,19 +158,14 @@ import request from '@/utils/request.js'
             this.dialogFormVisible1 = true;
         },
         editPassage(obj){
-            this.$delete(obj, 'createTime');
-            this.$delete(obj, 'updateTime');
-            this.$delete(obj, 'commentAmount');
-            this.$delete(obj, 'rate');
-            this.$delete(obj, 'userId');
             this.form = obj;
             this.dialogFormVisible2 = true;
         },
         deletePassage(id){
-            request.delete('/tool/' + id).then(res =>{
+            request.delete('/passage/' + id).then(res =>{
                 if(res.code === 20000){
                     this.$message({
-                        message: '删除工具成功',
+                        message: '删除文章成功',
                         type: 'success'
                     });
                 }else{
@@ -168,10 +175,10 @@ import request from '@/utils/request.js'
         },
         submitAdd(){
             this.dialogFormVisible1 = false
-            request.post('/tool/upload',this.form).then(res =>{
+            request.post('/passage/upload',this.form).then(res =>{
                 if(res.code === 20000){
                     this.$message({
-                        message: '新增工具成功',
+                        message: '新增文章成功',
                         type: 'success'
                     });
                 }else{
@@ -180,11 +187,19 @@ import request from '@/utils/request.js'
             })
         },
         submitModify(){
+            let obj = {
+              "passageId" : this.form.passageId,
+              "title": this.form.title,
+              "content" : this.form.content,
+              "label": this.form.label, 
+              "referenceSource": this.form.referenceSource
+          }
+          console.log(JSON.stringify(obj));
             this.dialogFormVisible2 = false
-            request.put('/tool/upload',this.form).then(res =>{
+            request.put('/passage/upload',obj).then(res =>{
                 if(res.code === 20000){
                     this.$message({
-                        message: '修改工具成功',
+                        message: '修改文章成功',
                         type: 'success'
                     });
                 }else{

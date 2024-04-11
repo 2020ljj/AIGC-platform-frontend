@@ -10,6 +10,9 @@
           </span>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item>
+              <div style="text-decoration: none" @click="logout">修改密码？</div>
+            </el-dropdown-item>
+            <el-dropdown-item>
               <div style="text-decoration: none" @click="logout">注销</div>
             </el-dropdown-item>
           </el-dropdown-menu>
@@ -83,6 +86,9 @@ export default{
  .el-menu{
   border-right: none !important;
  }
+ .el-menu-item{
+    font-size: 10px;
+}
  .el-dropdown-link {
     cursor: pointer;
     color: white;

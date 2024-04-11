@@ -142,7 +142,7 @@ import request from '@/utils/request.js'
               '/tool/page', 
                 {params: params}).
             then( res =>{
-                if(res.code == '20000'){
+                if(res.code === 20000){
                     this.tableData = res.data.page.records;
                     this.total = res.data.page.total;
                 }else{
