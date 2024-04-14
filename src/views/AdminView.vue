@@ -15,14 +15,22 @@
     </div>
     <div style="margin-bottom: 40px;">
       <el-table :data="tableData" style="width: 100%">
-        <el-table-column prop="userId" label="用户Id" width="180"></el-table-column>
+        <!-- <el-table-column prop="userId" label="用户Id" width="180"></el-table-column> -->
+        <el-table-column label="头像" width="100">
+          <template v-slot="scope">
+            <div style="display: flex; align-items: center">
+              <el-image style="width: 40px; height: 40px; border-radius: 50%" v-if="scope.row.avatar"
+                        :src="'http://localhost:8081/avatar/' + scope.row.avatar" :preview-src-list="[scope.row.avatar]"></el-image>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column prop="username" label="用户名" width="130"></el-table-column>
         <el-table-column prop="nickname" label="昵称" width="130"></el-table-column>
         <el-table-column prop="gender" label="性别" width="80"></el-table-column>
-        <!-- <el-table-column prop="avatar" label="头像" width="0"></el-table-column> -->
-        <el-table-column prop="experience" label="经验" width="80"></el-table-column>
+        <!-- <el-table-column prop="avatar" label="头像" width="80"></el-table-column> -->
+        <!-- <el-table-column prop="experience" label="经验" width="80"></el-table-column> -->
         <el-table-column prop="permission" label="权限等级" width="80"></el-table-column>
-        <el-table-column prop="followingAmount" label="关注者人数" width="80"></el-table-column>
+        <!-- <el-table-column prop="followingAmount" label="关注者人数" width="80"></el-table-column> -->
         <el-table-column prop="followerAmount" label="粉丝" width="80"></el-table-column>
         <el-table-column prop="signature" label="签名" width="200" show-overflow-tooltip></el-table-column>
         <el-table-column prop="passageAmount" label="文章数" width="80"></el-table-column>

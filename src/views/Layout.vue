@@ -5,12 +5,16 @@
         <img src="@/assets/logo.png" alt="" style="width: 40px; position: relative; top: 10px ; ">
         <span style="font-size: 28px; margin-left: 15px; color: white">AIGC论坛后台管理</span>
         <el-dropdown style="float: right; height: 60px; line-height: 60px;">
-          <span class="el-dropdown-link" style = "font-size: 16px">
-            {{ user.nickname }}<i class="el-icon-arrow-down el-icon--right"></i>
-          </span>
+          
+          <div class="front-header-dropdown">
+              <el-avatar :src="user.avatar"></el-avatar>
+              <div style="margin-left: 10px ;cursor: pointer; color: white;">
+                <span>{{ user.nickname }}</span><i class="el-icon-arrow-down" style="margin-left: 5px"></i>
+              </div>
+          </div>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item>
-              <div style="text-decoration: none" @click="logout">修改密码？</div>
+              <div style="text-decoration: none" @click="logout">修改密码</div>
             </el-dropdown-item>
             <el-dropdown-item>
               <div style="text-decoration: none" @click="logout">注销</div>
@@ -33,7 +37,7 @@
             <span>用户管理</span>
           </template>
           <el-menu-item-group>
-            <el-menu-item index = "/admin">管理员信息</el-menu-item>
+            <el-menu-item index = "/back/admin">用户信息</el-menu-item>
           </el-menu-item-group>
         </el-submenu>
 
@@ -43,7 +47,7 @@
           <span>工具管理</span>
           </template>
           <el-menu-item-group>
-            <el-menu-item index = "/tool">工具信息</el-menu-item>
+            <el-menu-item index = "/back/tool">工具信息</el-menu-item>
           </el-menu-item-group>
         </el-submenu>
 
@@ -53,7 +57,7 @@
           <span>内容管理</span>
           </template>
           <el-menu-item-group>
-            <el-menu-item index = "/passage">文章信息</el-menu-item>
+            <el-menu-item index = "/back/passage">文章信息</el-menu-item>
             <el-menu-item index = "4-2">评论信息</el-menu-item>
           </el-menu-item-group>
         </el-submenu>
@@ -86,9 +90,6 @@ export default{
  .el-menu{
   border-right: none !important;
  }
- .el-menu-item{
-    font-size: 10px;
-}
  .el-dropdown-link {
     cursor: pointer;
     color: white;

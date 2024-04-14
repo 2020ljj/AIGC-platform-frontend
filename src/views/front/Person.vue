@@ -8,9 +8,12 @@
         <div style="margin: 15px; text-align: center">
           <el-upload
               class="avatar-uploader"
-              :action="$baseUrl + '/files/upload'"
+              :action="'http://localhost:8081/user/avatar'"
+              name="avatarFile"
+              :with-credentials="true"
               :show-file-list="false"
               :on-success="handleAvatarSuccess"
+              :before-upload="beforeAvatarUpload"
           >
             <img v-if="user.avatar" :src="user.avatar" class="avatar" />
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
@@ -19,14 +22,19 @@
         <el-form-item label="用户名" prop="username">
           <el-input v-model="user.username" placeholder="用户名" disabled></el-input>
         </el-form-item>
-        <el-form-item label="姓名" prop="name">
-          <el-input v-model="user.name" placeholder="姓名"></el-input>
+        <el-form-item label="姓名" prop="nickname">
+          <el-input v-model="user.nickname" placeholder="昵称"></el-input>
         </el-form-item>
-        <el-form-item label="电话" prop="phone">
-          <el-input v-model="user.phone" placeholder="电话"></el-input>
+
+        <el-form-item label="性别">
+           <el-radio-group v-model="user.gender">
+             <el-radio :label=0>男</el-radio>
+             <el-radio :label=1>女</el-radio>
+           </el-radio-group>
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="user.email" placeholder="邮箱"></el-input>
+
+        <el-form-item label="个人签名" prop="signature">
+          <el-input v-model="user.signature" placeholder="个人签名"></el-input>
         </el-form-item>
         <div style="text-align: center; margin-bottom: 20px">
           <el-button type="primary" @click="update">保 存</el-button>
@@ -35,9 +43,9 @@
     </el-card>
     <el-dialog title="修改密码" :visible.sync="dialogVisible" width="30%" :close-on-click-modal="false" destroy-on-close>
       <el-form :model="user" label-width="80px" style="padding-right: 20px" :rules="rules" ref="formRef">
-        <el-form-item label="原始密码" prop="password">
+        <!-- <el-form-item label="原始密码" prop="password">
           <el-input show-password v-model="user.password" placeholder="原始密码"></el-input>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="新密码" prop="newPassword">
           <el-input show-password v-model="user.newPassword" placeholder="新密码"></el-input>
         </el-form-item>
@@ -54,6 +62,7 @@
 </template>
 
 <script>
+import request from '@/utils/request.js'
 export default {
   name: 'Person',
   data() {
@@ -68,13 +77,9 @@ export default {
       }
     }
     return {
-      user: JSON.parse(localStorage.getItem('xm-user') || '{}'),
+      user: JSON.parse(localStorage.getItem('user')),
       dialogVisible: false,
-
       rules: {
-        password: [
-          { required: true, message: '请输入原始密码', trigger: 'blur' },
-        ],
         newPassword: [
           { required: true, message: '请输入新密码', trigger: 'blur' },
         ],
@@ -90,23 +95,29 @@ export default {
   methods: {
     update() {
       // 保存当前的用户信息到数据库
-      this.$request.put('/admin/update', this.user).then(res => {
-        if (res.code === '200') {
-          // 成功更新
+      
+      request.put('/user/info', this.user).then(res => {
+        if (res.code === 20000) {
           this.$message.success('保存成功')
-          // 更新浏览器缓存里的用户信息
-          localStorage.setItem('xm-user', JSON.stringify(this.user))
-
-          // 触发父级的数据更新
+          localStorage.setItem('user', JSON.stringify(this.user))
           this.$emit('update:user')
         } else {
-          this.$message.error(res.msg)
+          this.$message({
+              message: res.message,
+              type: 'error'
+          });
         }
       })
     },
-    handleAvatarSuccess(response, file, fileList) {
+    handleAvatarSuccess(res, file) {
       // 把user的头像属性换成上传的图片的链接
-      this.$set(this.user, 'avatar', response.data)
+      console.log(res);
+      if(res.code == 20000){
+        this.$message.success('修改头像成功')
+      }
+      this.$set(this.user, 'avatar', "http://localhost:8081/avatar/" + res.data.avatar)
+      localStorage.setItem('user', JSON.stringify(this.user))
+      
     },
     // 修改密码
     updatePassword() {
@@ -115,37 +126,54 @@ export default {
     save() {
       this.$refs.formRef.validate((valid) => {
         if (valid) {
-          this.$request.put('/updatePassword', this.user).then(res => {
-            if (res.code === '200') {
+          request.post(
+            '/user/info1/password?newPassword=' + this.user.newPassword,).
+           then(res => {
+            if (res.code === 20000) {
               // 成功更新
               this.$message.success('修改密码成功')
               this.$router.push('/login')
             } else {
-              this.$message.error(res.msg)
+              this.$message({
+                  message: res.message,
+                  type: 'error'
+              });
             }
           })
         }
       })
+    },
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === 'image/jpeg';
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!');
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!');
+      }
+      return isJPG && isLt2M;
     }
   }
 }
 </script>
 
 <style scoped>
-/deep/.el-form-item__label {
+
+.el-form-item__label {
   font-weight: bold;
 }
-/deep/.el-upload {
+.el-upload {
   border-radius: 50%;
 }
-/deep/.avatar-uploader .el-upload {
+.avatar-uploader .el-upload {
   border: 1px dashed #d9d9d9;
   cursor: pointer;
   position: relative;
   overflow: hidden;
   border-radius: 50%;
 }
-/deep/.avatar-uploader .el-upload:hover {
+.avatar-uploader .el-upload:hover {
   border-color: #409EFF;
 }
 .avatar-uploader-icon {

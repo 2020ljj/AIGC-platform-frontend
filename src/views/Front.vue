@@ -10,11 +10,11 @@
       <div class="front-header-center">
         <div class="front-header-nav">
           <el-menu :default-active="$route.path" mode="horizontal" router>
-						<el-menu-item index="/front/home">首页</el-menu-item>
+						<el-menu-item index="/">首页</el-menu-item>
             <!-- <el-menu-item index="/front/insight">发现</el-menu-item>
 						<el-menu-item index="/front/tool">工具</el-menu-item>
             <el-menu-item index="/front/resource">资源</el-menu-item> -->
-            <el-menu-item index="/front/person">个人中心</el-menu-item>
+            <el-menu-item index="/person">个人中心</el-menu-item>
           </el-menu>
         </div>
       </div>
@@ -34,9 +34,12 @@
           <el-button @click="$router.push('/register')">注册</el-button>
         </div>
         <div v-else>
+          <div>
+
+          </div>
           <el-dropdown>
             <div class="front-header-dropdown">
-              <img :src="user.avatar" alt="">
+              <el-avatar :src="user.avatar"></el-avatar>
               <div style="margin-left: 10px">
                 <span>{{ user.nickname }}</span><i class="el-icon-arrow-down" style="margin-left: 5px"></i>
               </div>
