@@ -12,9 +12,7 @@
               </div>
             </div>
   
-            <div class="w-e-text">
-              <div v-html="passage.content"></div>
-            </div>
+            <div v-html="passage.content" class="w-e-text w-e-text-container"></div>
   
           </div>
   
@@ -33,25 +31,25 @@
         <div style="width: 260px">
           <div class="card" style="margin-bottom: 10px">
             <div style="display: flex; align-items: center; grid-gap: 10px; margin-bottom: 10px">
-              <img :src="passage.user?.avatar" alt="" style="width: 50px; height: 50px; border-radius: 50%">
+              <img :src="statistics?.avatar" alt="" style="width: 50px; height: 50px; border-radius: 50%">
               <div style="flex: 1;">
-                <div style="font-weight: bold; margin-bottom: 5px">{{ passage.user?.name }}</div>
-                <div style="color: #666; font-size: 13px" class="line2">{{ passage.user?.info }}</div>
+                <div style="font-weight: bold; margin-bottom: 5px">{{ statistics?.nickname }}</div>
+                <div style="color: #666; font-size: 13px" class="line2">{{ statistics?.signature }}</div>
               </div>
             </div>
   
             <div style="display: flex">
               <div style="flex: 1; text-align: center">
                 <div style="margin-bottom: 5px">文章</div>
-                <div style="color: #888">10</div>
+                <div style="color: #888">{{ statistics?.passageAmount }}</div>
               </div>
               <div style="flex: 1; text-align: center">
                 <div style="margin-bottom: 5px">获赞</div>
-                <div style="color: #888">10</div>
+                <div style="color: #888">{{ statistics?.likeAmount }}</div>
               </div>
               <div style="flex: 1; text-align: center">
                 <div style="margin-bottom: 5px">收藏</div>
-                <div style="color: #888">10</div>
+                <div style="color: #888">{{statistics?.collectionAmount}}</div>
               </div>
             </div>
           </div>
@@ -86,7 +84,7 @@
   
       </div>
   
-      <Footer />
+      <!-- <Footer /> -->
     </div>
   </template>
 
@@ -95,6 +93,8 @@
 
 <script>
 import request from '@/utils/request.js'
+import 'highlight.js/styles/monokai-sublime.css'
+import E from "wangeditor"
 export default {
     name: 'passageDetail',
     data(){
@@ -102,16 +102,20 @@ export default {
             passageId: this.$route.query.passageId,
             passage: {},
             tagsArr: [],
-            recommendList: []
+            recommendList: [],
+            editor: null,
+            statistics:{}
         }
     },
         created() {
-            this.load()
+            this.load();
+            this.editor = new E(_this.$refs.editorElem);//获取组件并构造编辑器
+            this.editor.create(); // 创建富文本实例
         },
         methods: {
             setLikes() {
             request.post('/likes/set', {  fid: this.blogId, module: '博客' }).then(res => {
-            if (res.code === '200') {
+            if (res.code === 20000) {
                 this.$message.success('操作成功')
             this.load()  // 重新加载数据
         }
@@ -119,7 +123,7 @@ export default {
     },
     setCollect() {
       request.post('/collect/set', {  fid: this.blogId, module: '博客' }).then(res => {
-        if (res.code === '200') {
+        if (res.code === 20000) {
           this.$message.success('操作成功')
           this.load()  // 重新加载数据
         }
@@ -127,21 +131,40 @@ export default {
     },
     load() {
         request.get('/passage/' + this.passageId).then(res => {
+          if (res.code === 20000) {
             this.passage = res.data.passage || {};
             this.tagsArr = this.passage.label.split("/");
-            console.log(this.tagsArr);
+
+            request.get('/user/statistics/' + this.passage.userId).then(res =>{
+            if (res.code === 20000) {
+              this.statistics = res.data.statistics || {};
+              this.statistics.avatar = "http://localhost:8081/avatar/" + this.statistics.avatar;
+            }else{
+              this.$message({
+                message: res.message,
+                type: 'error'
+              });
+            }
+            })
+
+          }else{
+            this.$message({
+              message: res.message,
+              type: 'error'
+          });
+          }
         })
-        request.get('/blog/selectRecommend/' + this.blogId).then(res => {
-            this.recommendList = res.data || []
-        })
+        // request.get('/blog/selectRecommend/' + this.blogId).then(res => {
+        //     this.recommendList = res.data || []
+        // })
     }
   }
 }
 </script>
 
-
-
+<!-- scoped src="@/wangeditor/src/assets/style/text.css" -->
 <style>
+
 blockquote {
   display: block;
   border-left: 8px solid #d0e5f2;

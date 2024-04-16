@@ -70,7 +70,6 @@
                         :action="'http://localhost:8081/passage/cover'"
                         name="avatarFile"
                         :with-credentials="true"
-                        :data={passageId:form.passageId} 
                         list-type="picture"
                         :on-success="handleCoverSuccess"
                     >
@@ -105,54 +104,11 @@
                 </el-form>
                 <div slot="footer" class="dialog-footer">
                   <el-button @click="dialogFormVisible1 = false">取 消</el-button>
-                  <el-button type="primary" @click="submitAdd()">确 定</el-button>
+                  <el-button type="primary" @click="save()">确 定</el-button>
                 </div>
             </el-dialog>
         </div>
-        <!-- <div>
-            <el-dialog title="修改文章信息" :visible.sync="dialogFormVisible2" width="50%" destory-on-close>
-                <el-form :model="form">
-                  <el-form-item label="标题" label-width="15%">
-                    <el-input v-model="form.title" autocomplete="off" style="width: 90%;"></el-input>
-                  </el-form-item>
-                  <el-form-item label="封面" prop="cover" label-width="15%">
-                    <el-upload
-                        :action="'http://localhost:8081/passage/cover'"
-                        name="avatarFile"
-                        :with-credentials="true"
-                        :data={passageId:form.passageId}
-                        list-type="picture"
-                        :on-success="handleCoverSuccess"
-                    >
-                      <el-button type="primary">上传封面</el-button>
-                    </el-upload>
-                  </el-form-item>
-                  <el-form-item label="标签" prop="tags" label-width="15%">
-                     <el-select v-model="labelsArr" multiple filterable allow-create default-first-option style="width: 100%">
-                       <el-option value="AI教程"></el-option>
-                       <el-option value="AI资讯"></el-option>
-                       <el-option value="AI音乐"></el-option>
-                       <el-option value="AI商业"></el-option>
-                       <el-option value="AI办公"></el-option>
-                       <el-option value="AI SEO"></el-option>
-                       <el-option value="AI视频"></el-option>
-                       <el-option value="AI其他"></el-option>
-                       <el-option value="AI写作"></el-option>
-                     </el-select>
-                    </el-form-item>
-                  <el-form-item label="参考文献" label-width="15%">
-                      <el-input type="textarea" v-model="form.referenceSource"></el-input>
-                  </el-form-item>
-                  <el-form-item label="内容" label-width="15%">
-                    <div id="editor"></div>
-                  </el-form-item>
-                </el-form>
-                <div slot="footer" class="dialog-footer">
-                  <el-button @click="dialogFormVisible2 = false">取 消</el-button>
-                  <el-button type="primary" @click="submitModify()">确 定</el-button>
-                </div>
-            </el-dialog>
-        </div> -->
+        
     </div>
 </template>
   
@@ -168,9 +124,7 @@
 import request from '@/utils/request.js'
 import E from "wangeditor"
 import hljs from 'highlight.js'
-import {
-    getCookie
-} from '@/utils/cookie'
+import { getCookie } from '@/utils/cookie'
   export default {
     data(){
         return {
@@ -212,9 +166,11 @@ import {
             this.form = {};
             this.labelsArr = []
             this.setRichText();
+            this.editor.txt.clear()  //清空富文本的内容
             this.dialogFormVisible1 = true;
         },
         editPassage(obj){
+            this.$delete(obj, 'nickname');
             this.form = JSON.parse(JSON.stringify(obj)) 
             this.labelsArr = obj.label.split('/');
             this.dialogFormVisible1 = true;
@@ -236,11 +192,12 @@ import {
                 }
             })
         },
-        submitAdd(){
+        save(){
             this.dialogFormVisible1 = false
             this.form.label = this.labelsArr.join("/");
-            console.log(this.form.label);
-            request.post('/passage/upload',this.form).then(res =>{
+            this.form.content = this.editor.txt.html();
+            if(!this.form.passageId){ //无文章id，新增文章
+              request.post('/passage/upload',this.form).then(res =>{
                 if(res.code === 20000){
                     this.$message({
                         message: '新增文章成功',
@@ -251,19 +208,8 @@ import {
                     this.$message.error(res.message);
                 }
             })
-        },
-        submitModify(){
-            this.form.label = this.labelsArr.join('/');
-            let obj = {
-              "passageId" : this.form.passageId,
-              "title": this.form.title,
-              "content" : this.form.content,
-              "label": this.form.label, 
-              "referenceSource": this.form.referenceSource
-          }
-          console.log(JSON.stringify(obj));
-            this.dialogFormVisible1 = false
-            request.put('/passage/upload',obj).then(res =>{
+            }else{
+              request.put('/passage/upload',this.form).then(res =>{
                 if(res.code === 20000){
                     this.$message({
                         message: '修改文章成功',
@@ -274,6 +220,7 @@ import {
                     this.$message.error(res.message);
                 }
             })
+            }
         },
         handleSizeChange(pageSize){
             this.pageSize = pageSize
@@ -284,13 +231,13 @@ import {
             this.queryPassage();
         },
         handleCoverSuccess(res) {
-            this.form.cover = res.data
+            this.form.cover = res.data.cover
         },
         setRichText() {
             this.$nextTick(() => {
             this.editor = new E(`#editor`)
             this.editor.highlight = hljs
-            this.editor.config.uploadImgServer = 'http://localhost:8081/passage/editor/upload'
+            this.editor.config.uploadImgServer = 'http://localhost:8081/files/editor/upload'
             this.editor.config.uploadFileName = 'file'
 
             this.editor.config.uploadImgHeaders = {
