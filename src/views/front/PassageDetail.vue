@@ -18,14 +18,14 @@
   
           <!--     点赞和收藏数据   -->
           <div class="card" style="text-align: center; font-size: 20px; color: #666; margin-bottom: 10px">
-            <span style="margin-right: 20px; cursor: pointer;" @click="setLikes" :class="{ 'active' : passage.userLike }"><i class="el-icon-appreciate"></i> {{ passage.likeAmount }}</span>
+            <span style="margin-right: 20px; cursor: pointer;" @click="setLikes"><i class="el-icon-appreciate" :class="{ 'activeLike' : ifUserLike }"></i> {{ passage.likeAmount }}</span>
             <!-- <span style="margin-right: 20px; cursor: pointer;" @click="setUnlikes" :class="{ 'active' : passage.userLike }"><i class="el-icon-oppose_light"></i> {{ passage.unlikeAmount }}</span> -->
-            <span style=" cursor: pointer"  @click="setCollect" :class="{ 'active' : passage.userCollect }"><i class="el-icon-star-off"></i> {{ passage.collectionAmount }}</span>
+            <span style=" cursor: pointer"  @click="setCollect"><i class="el-icon-star-off" :class="{ 'activeCollect' : ifUserCollect }"></i> {{ passage.collectionAmount }}</span>
           </div>
-  
-          <div class="card">
-  
-          </div>
+          
+          <!-- 评论模块 -->
+          <Comment></Comment>
+
         </div>
   
         <div style="width: 260px">
@@ -95,8 +95,12 @@
 import request from '@/utils/request.js'
 import 'highlight.js/styles/monokai-sublime.css'
 import E from "wangeditor"
+import Comment from "@/components/CommentComponent.vue"
 export default {
     name: 'passageDetail',
+    components:{
+      Comment
+    },
     data(){
         return {
             passageId: this.$route.query.passageId,
@@ -104,28 +108,38 @@ export default {
             tagsArr: [],
             recommendList: [],
             editor: null,
-            statistics:{}
+            statistics:{},
+            ifUserLike: 0,
+            ifUserCollect: 0
         }
     },
-        created() {
-            this.load();
-            this.editor = new E(_this.$refs.editorElem);//获取组件并构造编辑器
-            this.editor.create(); // 创建富文本实例
-        },
-        methods: {
-            setLikes() {
-            request.post('/likes/set', {  fid: this.blogId, module: '博客' }).then(res => {
-            if (res.code === 20000) {
-                this.$message.success('操作成功')
+created() {
+    this.load();
+    this.editor = new E(_this.$refs.editorElem);//获取组件并构造编辑器
+    this.editor.create(); // 创建富文本实例
+},
+methods: {
+    setLikes() {
+      request.post('/likes/set', {"targetId": this.passageId, "choice": "文章"}).then(res => {
+        if (res.code === 20000) 
             this.load()  // 重新加载数据
+        else{
+          this.$message({
+            message: res.message,
+            type: 'error'
+          });
         }
       })
     },
     setCollect() {
-      request.post('/collect/set', {  fid: this.blogId, module: '博客' }).then(res => {
+      request.post('/collect/set', {  "targetId": this.passageId, "choice": "文章"}).then(res => {
         if (res.code === 20000) {
-          this.$message.success('操作成功')
           this.load()  // 重新加载数据
+        }else{
+          this.$message({
+            message: res.message,
+            type: 'error'
+          });
         }
       })
     },
@@ -136,23 +150,35 @@ export default {
             this.tagsArr = this.passage.label.split("/");
 
             request.get('/user/statistics/' + this.passage.userId).then(res =>{
-            if (res.code === 20000) {
-              this.statistics = res.data.statistics || {};
-              this.statistics.avatar = "http://localhost:8081/avatar/" + this.statistics.avatar;
-            }else{
-              this.$message({
-                message: res.message,
-                type: 'error'
-              });
-            }
+              if (res.code === 20000) {
+                this.statistics = res.data.statistics || {};
+                this.statistics.avatar = "http://localhost:8081/avatar/" + this.statistics.avatar;
+              }else{
+                this.$message({message: res.message,type: 'error'});
+              }
             })
 
           }else{
-            this.$message({
-              message: res.message,
-              type: 'error'
-          });
+            this.$message({message: res.message,type: 'error'});
           }
+
+          request.post('/likes/get' , {"targetId": this.passageId, "choice": "文章"}).then(res =>{
+              if (res.code === 20000) {
+                  this.ifUserLike = res.data.ifUserLike;
+              }else{
+                this.$message({message: res.message,type: 'error'});
+              }
+          })
+          request.post('/collect/get' , {"targetId": this.passageId, "choice": "文章"}).then(res =>{
+              if (res.code === 20000) {
+                  this.ifUserCollect = res.data.ifUserCollect;
+              }else{
+                this.$message({message: res.message,type: 'error'});
+              }
+          })
+
+
+
         })
         // request.get('/blog/selectRecommend/' + this.blogId).then(res => {
         //     this.recommendList = res.data || []
@@ -192,8 +218,11 @@ p {
   line-height: 30px
 }
 
-.active {
-  color: orange !important;
+.activeLike {
+  color: red !important;
+}
+.activeCollect{
+  color: yellow !important;
 }
 .recommend-title {
   margin-bottom: 5px;
