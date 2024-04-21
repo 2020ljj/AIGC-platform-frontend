@@ -20,6 +20,8 @@ const routes = [
       { path: '', name: 'Home', meta: { name: '系统首页' }, component: () => import('../views/front/Home.vue') },
       { path: 'person', name: 'Person', meta: { name: '个人信息' }, component: () => import('../views/front/Person.vue') },
       { path: 'passageDetail', name: 'passageDetail', meta: { name: '文章详情页' }, component: () => import('../views/front/PassageDetail.vue') },
+      { path: 'toolDetail', name: 'toolDetail', meta: { name: '工具详情页' }, component: () => import('../views/front/ToolDetail.vue') },
+
     ]
   },
   {

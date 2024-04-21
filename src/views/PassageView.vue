@@ -14,6 +14,7 @@
           </el-input>
           <el-button type="success" style="margin-left: 10px;" @click = "addPassage()">新增</el-button>
         </div>
+        
         <div style="margin-bottom: 40px;">
         <el-table :data="tableData" style="width: 100%">
           <!-- <el-table-column prop="passageId" label="文章Id" width="180"></el-table-column> -->
@@ -26,16 +27,14 @@
           </template>
         </el-table-column>
           <el-table-column prop="title" label="标题" width="180" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="nickname" label="作者昵称" width="130"></el-table-column>
-
+          <el-table-column prop="nickname" label="作者昵称" width="100"></el-table-column>
           <el-table-column prop="label" label="标签" width="130" show-overflow-tooltip></el-table-column>
-
-          <el-table-column prop="content" label="内容" width="250" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="content" label="内容" width="200" show-overflow-tooltip></el-table-column>
           <el-table-column prop="isCited" label="是否引用" width="80" ></el-table-column>
           <el-table-column prop="commentAmount" label="点赞数" width="80"></el-table-column>
           <el-table-column prop="collectionAmount" label="收藏数" width="80"></el-table-column>  
           <el-table-column prop="likeAmount" label="评论数" width="80"></el-table-column>  
-          <el-table-column prop="createTime" label="上传时间" width="180"></el-table-column>  
+          <el-table-column prop="createTime" label="上传时间" width="100"></el-table-column>  
           <el-table-column label="操作">
             <template slot-scope="scope">
                 <el-button type="primary" @click="editPassage(scope.row)">编辑</el-button>
@@ -60,7 +59,7 @@
             </el-pagination>
         </div>
         <div>
-            <el-dialog title="新增文章" :visible.sync="dialogFormVisible1" width="50%" destory-on-close>
+            <el-dialog title="新增/修改文章" :visible.sync="dialogFormVisible1" width="50%" destory-on-close>
                 <el-form :model="form">
                   <el-form-item label="标题" label-width="15%">
                     <el-input v-model="form.title" autocomplete="off" style="width: 90%;"></el-input>
@@ -165,9 +164,9 @@ import { getCookie } from '@/utils/cookie'
         addPassage(){
             this.form = {};
             this.labelsArr = []
+            this.dialogFormVisible1 = true;
             this.setRichText();
             this.editor.txt.clear()  //清空富文本的内容
-            this.dialogFormVisible1 = true;
         },
         editPassage(obj){
             this.$delete(obj, 'nickname');
@@ -249,7 +248,7 @@ import { getCookie } from '@/utils/cookie'
             }
             this.editor.create()  // 创建
         })
-},
+      },
     }
   }
   </script>

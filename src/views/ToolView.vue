@@ -14,15 +14,22 @@
         </div>
         <div style="margin-bottom: 40px;">
         <el-table :data="tableData" style="width: 100%">
-          <el-table-column prop="toolId" label="工具Id" width="180"></el-table-column>
-          <el-table-column prop="userId" label="上传用户Id" width="180"></el-table-column>
-          <el-table-column prop="name" label="名称" width="130"></el-table-column>
-          <el-table-column prop="introduction" label="介绍" width="250" show-overflow-tooltip></el-table-column>
+          <!-- <el-table-column prop="passageId" label="文章Id" width="180"></el-table-column> -->
+          <el-table-column label="封面" width="100">
+          <template v-slot="scope">
+            <div style="display: flex; align-items: center">
+              <el-image style="width: 40px; height: 40px;" v-if="scope.row.cover"
+                        :src="'http://localhost:8081/cover/' + scope.row.cover" :preview-src-list="[scope.row.cover]"></el-image>
+            </div>
+          </template>
+        </el-table-column>
+          <el-table-column prop="name" label="名字" width="130" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="nickname" label="作者昵称" width="100"></el-table-column>
+          <el-table-column prop="label" label="标签" width="130" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="introduction" label="介绍" width="200" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="rate" label="评分" width="80" show-overflow-tooltip></el-table-column>
           <el-table-column prop="link" label="链接" width="130" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="label" label="标签" width="80"></el-table-column>
-          <el-table-column prop="rate" label="评分" width="80"></el-table-column>
-          <el-table-column prop="commentAmount" label="评论数量" width="80"></el-table-column>
-          <el-table-column prop="createTime" label="上传时间" width="180"></el-table-column>  
+          <el-table-column prop="createTime" label="上传时间" width="100"></el-table-column>  
           <el-table-column label="操作">
             <template slot-scope="scope">
                 <el-button type="primary" @click="editTool(scope.row)">编辑</el-button>
@@ -31,9 +38,7 @@
                 </el-popconfirm>            
             </template>
           </el-table-column>
-
       </el-table>
-    
     </div>
         <div class="block">
             <el-pagination
@@ -47,61 +52,49 @@
             </el-pagination>
         </div>
         <div>
-            <el-dialog title="新增AIGC工具" :visible.sync="dialogFormVisible1" width="30%">
+            <el-dialog title="新增工具" :visible.sync="dialogFormVisible1" width="50%" destory-on-close>
                 <el-form :model="form">
-                  <el-form-item label="名称" label-width="15%">
+                  <el-form-item label="名字" label-width="15%">
                     <el-input v-model="form.name" autocomplete="off" style="width: 90%;"></el-input>
                   </el-form-item>
+                  <el-form-item label="封面" prop="cover" label-width="15%">
+                    <el-upload
+                        :action="'http://localhost:8081/tool/cover'"
+                        name="avatarFile"
+                        :with-credentials="true"
+                        list-type="picture"
+                        :on-success="handleCoverSuccess"
+                    >
+                      <el-button type="primary">上传封面</el-button>
+                    </el-upload>
+                  </el-form-item>
+                  <el-form-item label="标签" prop="tags" label-width="15%">
+                     <el-select v-model="labelsArr" multiple filterable allow-create default-first-option style="width: 100%">
+                       <el-option value="AI教程"></el-option>
+                       <el-option value="AI资讯"></el-option>
+                       <el-option value="AI音乐"></el-option>
+                       <el-option value="AI商业"></el-option>
+                       <el-option value="AI办公"></el-option>
+                       <el-option value="AI SEO"></el-option>
+                       <el-option value="AI视频"></el-option>
+                       <el-option value="AI其他"></el-option>
+                       <el-option value="AI写作"></el-option>
+                     </el-select>
+                    </el-form-item>
+                    <el-form-item label="链接" label-width="15%">
+                      <el-input type="textarea" v-model="form.link"></el-input>
+                  </el-form-item>
                   <el-form-item label="介绍" label-width="15%">
-                    <el-input v-model="form.introduction" autocomplete="off" style="width: 90%;"></el-input>
-                  </el-form-item>
-                  <el-form-item label="链接" label-width="15%">
-                    <el-input v-model="form.link" autocomplete="off" style="width: 90%;"></el-input>
-                  </el-form-item>
-                  <el-form-item label="标签" label-width="15%">
-                    <el-input v-model="form.label" autocomplete="off" style="width: 90%;"></el-input>
-                  </el-form-item>
-                  <el-form-item label="活动区域" label-width="15%">
-                    <el-select v-model="form.region" placeholder="请选择活动区域">
-                      <el-option label="区域一" value="shanghai"></el-option>
-                      <el-option label="区域二" value="beijing"></el-option>
-                    </el-select>
+                    <div id="editor"></div>
                   </el-form-item>
                 </el-form>
                 <div slot="footer" class="dialog-footer">
                   <el-button @click="dialogFormVisible1 = false">取 消</el-button>
-                  <el-button type="primary" @click="submitAdd()">确 定</el-button>
+                  <el-button type="primary" @click="save()">确 定</el-button>
                 </div>
             </el-dialog>
         </div>
-        <div>
-            <el-dialog title="修改AIGC工具信息" :visible.sync="dialogFormVisible2" width="30%">
-                <el-form :model="form">
-                  <el-form-item label="名称" label-width="15%">
-                    <el-input v-model="form.name" autocomplete="off" style="width: 90%;"></el-input>
-                  </el-form-item>
-                  <el-form-item label="介绍" label-width="15%">
-                    <el-input v-model="form.introduction" autocomplete="off" style="width: 90%;"></el-input>
-                  </el-form-item>
-                  <el-form-item label="链接" label-width="15%">
-                    <el-input v-model="form.link" autocomplete="off" style="width: 90%;"></el-input>
-                  </el-form-item>
-                  <el-form-item label="标签" label-width="15%">
-                    <el-input v-model="form.label" autocomplete="off" style="width: 90%;"></el-input>
-                  </el-form-item>
-                  <el-form-item label="活动区域" label-width="15%">
-                    <el-select v-model="form.region" placeholder="请选择活动区域">
-                      <el-option label="区域一" value="shanghai"></el-option>
-                      <el-option label="区域二" value="beijing"></el-option>
-                    </el-select>
-                  </el-form-item>
-                </el-form>
-                <div slot="footer" class="dialog-footer">
-                  <el-button @click="dialogFormVisible2 = false">取 消</el-button>
-                  <el-button type="primary" @click="submitModify()">确 定</el-button>
-                </div>
-            </el-dialog>
-        </div>
+        
     </div>
 </template>
   
@@ -115,6 +108,9 @@
 </style>
   <script>
 import request from '@/utils/request.js'
+import E from "wangeditor"
+import hljs from 'highlight.js'
+import { getCookie } from '@/utils/cookie'
   export default {
     data(){
         return {
@@ -125,8 +121,9 @@ import request from '@/utils/request.js'
             pageSize: 10,
             total: 0,
             dialogFormVisible1:false,
-            dialogFormVisible2:false,
-            form:{}
+            form:{} ,
+            labelsArr:[],
+            editor: null
         }
     },
     created(){
@@ -152,16 +149,20 @@ import request from '@/utils/request.js'
         },
         addTool(){
             this.form = {};
+            this.labelsArr = []
             this.dialogFormVisible1 = true;
+            this.setRichText();
+            this.editor.txt.clear()  //清空富文本的内容
         },
         editTool(obj){
-            this.$delete(obj, 'createTime');
-            this.$delete(obj, 'updateTime');
-            this.$delete(obj, 'commentAmount');
-            this.$delete(obj, 'rate');
-            this.$delete(obj, 'userId');
-            this.form = obj;
-            this.dialogFormVisible2 = true;
+            this.$delete(obj, 'nickname');
+            this.form = JSON.parse(JSON.stringify(obj)) 
+            this.labelsArr = obj.label.split('/');
+            this.dialogFormVisible1 = true;
+            this.setRichText()
+            setTimeout(() => {
+                this.editor.txt.html(this.form.introduction)
+            }, 0)
         },
         deleteTool(id){
             request.delete('/tool/' + id).then(res =>{
@@ -170,36 +171,42 @@ import request from '@/utils/request.js'
                         message: '删除工具成功',
                         type: 'success'
                     });
+                    this.queryTool()
                 }else{
                     this.$message.error(res.message);
                 }
             })
         },
-        submitAdd(){
+        save(){
             this.dialogFormVisible1 = false
-            request.post('/tool/upload',this.form).then(res =>{
+            this.form.label = this.labelsArr.join("/");
+            this.form.introduction = this.editor.txt.html();
+            if(!this.form.toolId){ //无工具id，新增工具
+              request.post('/tool/upload',this.form).then(res =>{
                 if(res.code === 20000){
                     this.$message({
                         message: '新增工具成功',
                         type: 'success'
                     });
+                    this.queryTool()
                 }else{
                     this.$message.error(res.message);
                 }
-            })
-        },
-        submitModify(){
-            this.dialogFormVisible2 = false
-            request.put('/tool/upload',this.form).then(res =>{
+              })
+            }else{
+              request.put('/tool/upload',this.form).then(res =>{
                 if(res.code === 20000){
                     this.$message({
                         message: '修改工具成功',
                         type: 'success'
                     });
+                    this.queryTool()
                 }else{
                     this.$message.error(res.message);
                 }
             })
+            }
+            
         },
         handleSizeChange(pageSize){
             this.pageSize = pageSize
@@ -208,7 +215,27 @@ import request from '@/utils/request.js'
         handleCurrentChange(currentPage){
             this.currentPage = currentPage
             this.queryTool()
-        }
+        },
+        handleCoverSuccess(res) {
+            this.form.cover = res.data.cover
+        },
+        setRichText() {
+            this.$nextTick(() => {
+            this.editor = new E(`#editor`)
+            this.editor.highlight = hljs
+            this.editor.config.uploadImgServer = 'http://localhost:8081/files/editor/upload'
+            this.editor.config.uploadFileName = 'file'
+
+            this.editor.config.uploadImgHeaders = {
+              'satoken'  : getCookie("satoken")
+            }
+            
+            this.editor.config.uploadImgParams = {
+              type: 'img',
+            }
+            this.editor.create()  // 创建
+        })
+      },
     }
   }
   </script>
