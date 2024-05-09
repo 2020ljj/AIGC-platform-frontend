@@ -5,7 +5,7 @@ import {
 //创建一个axios对象出来
 const request = axios.create({
     baseURL: 'http://localhost:8081' ,
-    timeout: 10000
+    timeout: 20000
 })
 //request拦截器
 //可以自请求发送前对请求做一些处理//比如统—加token，对请求参数统─加密

@@ -18,9 +18,12 @@ const routes = [
     component: FrontLayout,
     children: [
       { path: '', name: 'Home', meta: { name: '系统首页' }, component: () => import('../views/front/Home.vue') },
-      { path: 'person', name: 'Person', meta: { name: '个人信息' }, component: () => import('../views/front/Person.vue') },
+      { path: 'passageGuide', name: 'PassageGuide', meta: { name: '文章导航页首页' }, component: () => import('../views/front/PassageGuide.vue') },
       { path: 'passageDetail', name: 'passageDetail', meta: { name: '文章详情页' }, component: () => import('../views/front/PassageDetail.vue') },
+      { path: 'toolGuide', name: 'toolGuide', meta: { name: '工具导航页' }, component: () => import('../views/front/ToolGuide.vue') },
+      { path: 'resources', name: 'resources', meta: { name: '资源' }, component: () => import('../views/front/Home.vue') },
       { path: 'toolDetail', name: 'toolDetail', meta: { name: '工具详情页' }, component: () => import('../views/front/ToolDetail.vue') },
+      { path: 'person', name: 'Person', meta: { name: '个人信息' }, component: () => import('../views/front/Person.vue') },
 
     ]
   },

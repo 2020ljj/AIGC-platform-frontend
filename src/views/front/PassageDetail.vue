@@ -52,6 +52,10 @@
                 <div style="color: #888">{{statistics?.collectionAmount}}</div>
               </div>
             </div>
+            <div style="display: flex; flex: 1; margin-top: 10px">
+                <el-button type="primary" style="flex: 1; margin-right: 5px;" @click="followUser">关注</el-button>
+                <el-button type="primary" style="flex: 1; margin-left: 5px;">私信</el-button>
+            </div>
           </div>
   
           <div class="card" style="margin-bottom: 10px">
@@ -183,6 +187,20 @@ methods: {
         // request.get('/blog/selectRecommend/' + this.blogId).then(res => {
         //     this.recommendList = res.data || []
         // })
+    },
+    followUser() {
+
+        // 发送关注请求
+        request.post('/api/follow', { userId: statistics.userId }).then(res =>{
+          if (res.code === 20000) {
+            document.getElementById('followBtn').classList.add('followed');
+            document.getElementById('followBtn').disabled = true; // 禁用按钮
+          }
+          else {
+            // 请求失败处理
+            alert('关注失败，请稍后重试。');
+          }
+        });
     }
   }
 }
@@ -230,4 +248,10 @@ p {
 .recommend-title:hover {
   color: #2a60c9;
 }
+.followed {
+    background-color: #ccc; /* 灰色背景 */
+    color: #666; /* 灰色文本 */
+    cursor: default; 
+}
+
 </style>

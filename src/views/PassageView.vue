@@ -27,13 +27,14 @@
           </template>
         </el-table-column>
           <el-table-column prop="title" label="标题" width="180" show-overflow-tooltip></el-table-column>
+
           <el-table-column prop="nickname" label="作者昵称" width="100"></el-table-column>
           <el-table-column prop="label" label="标签" width="130" show-overflow-tooltip></el-table-column>
           <el-table-column prop="content" label="内容" width="200" show-overflow-tooltip></el-table-column>
           <el-table-column prop="isCited" label="是否引用" width="80" ></el-table-column>
-          <el-table-column prop="commentAmount" label="点赞数" width="80"></el-table-column>
+          <el-table-column prop="likeAmount" label="点赞数" width="80"></el-table-column>
           <el-table-column prop="collectionAmount" label="收藏数" width="80"></el-table-column>  
-          <el-table-column prop="likeAmount" label="评论数" width="80"></el-table-column>  
+          <el-table-column prop="commentAmount" label="评论数" width="80"></el-table-column>  
           <el-table-column prop="createTime" label="上传时间" width="100"></el-table-column>  
           <el-table-column label="操作">
             <template slot-scope="scope">
@@ -109,6 +110,7 @@
         </div>
         
     </div>
+    
 </template>
   
 <style>

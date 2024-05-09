@@ -11,21 +11,21 @@
         <div class="front-header-nav">
           <el-menu :default-active="$route.path" mode="horizontal" router>
 						<el-menu-item index="/">首页</el-menu-item>
-            <!-- <el-menu-item index="/front/insight">发现</el-menu-item>
-						<el-menu-item index="/front/tool">工具</el-menu-item>
-            <el-menu-item index="/front/resource">资源</el-menu-item> -->
-            <el-menu-item index="/person">个人中心</el-menu-item>
+            <el-menu-item index="passageGuide">发现</el-menu-item>
+						<el-menu-item index="toolGuide">工具</el-menu-item>
+            <el-menu-item index="resources">资源</el-menu-item>
+            <el-menu-item index="person">个人中心</el-menu-item>
           </el-menu>
         </div>
       </div>
       <div>
-      <el-input placeholder="请输入关键字搜索" v-model="input" class="input-with-select">
+      <el-input placeholder="请输入关键字搜索" v-model="queryParam" class="input-with-select">
         <el-select v-model="select" slot="prepend" placeholder="请选择" >
           <el-option label="文章" value="passage"></el-option>
           <el-option label="工具" value="tool"></el-option>
           <el-option label="用户" value="user"></el-option>
         </el-select>
-        <el-button slot="append" icon="el-icon-search"></el-button>
+        <el-button slot="append" icon="el-icon-search" @click="search()"></el-button>
       </el-input>
       </div>
       <div class="front-header-right">
@@ -71,7 +71,7 @@ export default {
       user: JSON.parse(localStorage.getItem("user") || '{}'),
       form: {},
       select:'passage',
-      input:''
+      queryParam:''
     }
   },
 
@@ -103,6 +103,25 @@ export default {
       localStorage.removeItem("user");
       this.$router.push("/login");
     },
+    search(){
+      if(this.select === 'passage'){
+        this.$router.push({
+					name: 'PassageGuide',
+					query: {
+            queryParam: this.queryParam
+          }
+				})
+      }else if(this.select === 'tool'){
+        this.$router.push({
+					name: 'toolGuide',
+					query: {
+            queryParam: this.queryParam
+          }
+				})
+      }else if(this.select === 'user'){
+
+      }
+    }
   }
 
 }

@@ -27,10 +27,7 @@
         <el-table-column prop="username" label="用户名" width="130"></el-table-column>
         <el-table-column prop="nickname" label="昵称" width="130"></el-table-column>
         <el-table-column prop="gender" label="性别" width="80"></el-table-column>
-        <!-- <el-table-column prop="avatar" label="头像" width="80"></el-table-column> -->
-        <!-- <el-table-column prop="experience" label="经验" width="80"></el-table-column> -->
         <el-table-column prop="permission" label="权限等级" width="80"></el-table-column>
-        <!-- <el-table-column prop="followingAmount" label="关注者人数" width="80"></el-table-column> -->
         <el-table-column prop="followerAmount" label="粉丝" width="80"></el-table-column>
         <el-table-column prop="signature" label="签名" width="200" show-overflow-tooltip></el-table-column>
         <el-table-column prop="passageAmount" label="文章数" width="80"></el-table-column>
@@ -95,7 +92,6 @@ import request from '@/utils/request.js'
             })
         },
         queryUser(){
-
           const params = new URLSearchParams();
           params.append(this.select,this.input)
           params.append('currentPage',this.currentPage)
@@ -108,10 +104,9 @@ import request from '@/utils/request.js'
                     this.tableData = res.data.page.records;
                     this.total = res.data.page.total;
                   }else{
-
+                      console.log('error')
                   }
           })
-        
         },
         handleSizeChange(pageSize){
             this.pageSize = pageSize
