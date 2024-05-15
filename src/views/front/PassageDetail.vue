@@ -125,8 +125,10 @@ created() {
 methods: {
     setLikes() {
       request.post('/likes/set', {"targetId": this.passageId, "choice": "文章"}).then(res => {
-        if (res.code === 20000) 
-            this.load()  // 重新加载数据
+        if (res.code === 20000) {
+          this.load()  // 重新加载数据
+          this.statistics.likeAmount ++;
+        }
         else{
           this.$message({
             message: res.message,
